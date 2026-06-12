@@ -34,31 +34,32 @@ listaCaracteres = [
     
 
 class Mago:
-    def __init__ (self,ID,nombre,elemento,hp,fuerza,armadura,velocidad,nivel):
+    def __init__ (self,ID,nombre,elemento,hpActual,hpMax,fuerza,armadura,velocidad,nivel):
         self.ID = ID
         self.nombre = nombre
         self.elemento = elemento
-        self.hp = hp
+        self.hpActual = hpActual
+        self.hpMax = hpMax
         self.fuerza = fuerza
         self.armadura = armadura
         self.velocidad = velocidad
         self.nivel = nivel
 
     def repartir_Stats(self):
-        raise NotImplementedError("variable repartir no declarada")
+        raise NotImplementedError("funcion repartir no declarada")
     
     def mostrar_Stats(self):
-        print(f"HP: {self.hp}\nFuerza: {self.fuerza}\nArmadura: {self.armadura}\nVelocidad: {self.velocidad}\nNivel: {self.nivel}")
+        print(f"{self.nombre}:\nHP: {self.hpActual}/{self.hpMax}\nFuerza: {self.fuerza}\nArmadura: {self.armadura}\nVelocidad: {self.velocidad}\nNivel: {self.nivel}")
 
 
 class Jugador(Mago):
 
     def repartir_Stats(self):
         puntos = 4
-        while puntos != 0:
+        while puntos > 0:
                 eleccion = int(input(f"tienes {puntos} puntos a repartir \n selecciona a que le quieres asignar el siguiente punto\n1-HP\n2-Fuerza\n3-Armadura\n4-Velocidad:\n"))
                 if eleccion == 1:
-                    self.hp += 1
+                    self.hpMax += 1
                     puntos -= 1
                 elif eleccion == 2:
                     self.fuerza += 1
@@ -72,6 +73,10 @@ class Jugador(Mago):
                 else:
                     print("Estadistica no existe")
 
+    def subir_Nivel(self):
+        self.nivel += 1
+        self.repartir_Stats()
+
 
 class Rival(Mago):
 
@@ -80,7 +85,7 @@ class Rival(Mago):
         puntos = 4 * (self.nivel - (2*(self.nivel//10)))
 
         while puntos > 4:
-            self.hp += 1
+            self.hpMax += 1
             self.fuerza += 1
             self.armadura += 1
             self.velocidad += 1
@@ -98,13 +103,13 @@ class Jefe(Mago):
         puntos = 4 * self.nivel 
 
         while puntos > 8:
-            self.hp += 1
+            self.hpMax += 1
             self.fuerza += 1
             self.armadura += 1
             self.velocidad += 1
             puntos -= 4
         while puntos > 0:
-            self.hp += 1
+            self.hpMax += 1
             self.velocidad +=1
             puntos -= 2
 
@@ -136,18 +141,48 @@ def nombrar_Jugador():
             print("Elemento no existe")
             elemento_Jugador = "error"
 
-    player1 = Jugador(idJugador,nombre_Usuario,elemento_Jugador,20,5,5,5,0)
+    player1 = Jugador(idJugador,nombre_Usuario,elemento_Jugador,20,5,5,5,5,0)
        
     return player1
 
+def enfrentamiento(mago1,mago2):
+    if mago1.velocidad > mago2.velocidad:
+        primero = mago1
+        segundo = mago2
+    else:
+        primero = mago2
+        segundo = mago1
+         
+    while primero.hpActual > 0 and segundo.hpActual > 0:
+        daño =  primero.fuerza - segundo.armadura
+        if daño < 1:
+            daño = 1
+        segundo.hpActual -= daño
+        print(f"el mago {primero.nombre} ataco y causo {daño} a mago {segundo.nombre}\nvida {primero.nombre} {primero.hpActual}/ {segundo.hpActual} {segundo.nombre}")
+        daño =  segundo.fuerza - primero.armadura
+        if daño < 1:
+            daño = 1
+        if segundo.hpActual > 0:
+            primero.hpActual -= daño 
+            print(f"el mago {segundo.nombre} ataco y causo {daño} a mago {primero.nombre}\nvida {primero.nombre} {primero.hpActual}/ {segundo.hpActual} {segundo.nombre}")
+
+    if primero.hpActual > segundo.hpActual:
+        print(f"EL MAGO {primero.nombre} derroto a {segundo.nombre}")
+    else:
+        print(f"EL MAGO {segundo.nombre} derroto a {primero.nombre}")
+
+
+
+
 
 player1 = nombrar_Jugador()
-player1.nivel = 1
-player1.repartir_Stats()
-rival1 = Rival(1,"prueba1","Agua",20,5,5,5,2)
-jefe1 = Jefe(1,"jefeprueba","Neutral",20,5,5,5,10)
+player1.subir_Nivel()
+rival1 = Rival(1,"rival1","Agua",20,5,5,5,5,1)
+jefe1 = Jefe(1,"jefeprueba","Neutral",20,5,5,5,5,10)
 rival1.repartir_Stats()
 jefe1.repartir_Stats()
 player1.mostrar_Stats()
 rival1.mostrar_Stats()
 jefe1.mostrar_Stats()
+
+enfrentamiento(player1,rival1)
