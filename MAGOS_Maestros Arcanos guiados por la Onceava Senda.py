@@ -32,7 +32,17 @@ listaCaracteres = [
     valoracionCaracter("z",6)
     ]
     
+class Elementos():
+    def __init__ (self,nombre,fortaleza,debilidad):
+        self.nombre = nombre
+        self.fortaleza = fortaleza
+        self.debilidad = debilidad
 
+Agua = Elementos("Agua","Fuego","Tierra")
+Fuego = Elementos("Fuego","Planta","Agua")
+Planta = Elementos("Planta","Tierra","Fuego")
+Tierra = Elementos("Tierra","Agua","Planta")
+Neutral = Elementos("Neutral","","")
 
 class Mago:
     def __init__ (self,ID,nombre,elemento,hpActual,hpMax,fuerza,armadura,velocidad,nivel):
@@ -159,14 +169,14 @@ def enfrentamiento(mago1,mago2):
         if daño < 1:
             daño = 1
         segundo.hpActual -= daño
-        print(f"el mago {primero.nombre} ataco y causo {daño} a mago {segundo.nombre}\nvida {primero.nombre} {primero.hpActual}/ {segundo.hpActual} {segundo.nombre}")
+        print(f"el mago {primero.nombre} ataco y causo {daño} a mago {segundo.nombre}\nvida {primero.nombre} {primero.hpActual} | {segundo.hpActual} {segundo.nombre}")
         daño =  segundo.fuerza - primero.armadura
         if daño < 1:
             daño = 1
         if segundo.hpActual > 0:
             primero.hpActual -= daño 
-            print(f"el mago {segundo.nombre} ataco y causo {daño} a mago {primero.nombre}\nvida {primero.nombre} {primero.hpActual}/ {segundo.hpActual} {segundo.nombre}")
-        print(f"{mago1.nombre}: {mago1.hpActual}/{mago1.hpMax}   ---   {mago2.nombre}: {mago2.hpActual}/{mago2.hpMax}")
+            print(f"el mago {segundo.nombre} ataco y causo {daño} a mago {primero.nombre}\nvida {primero.nombre} {primero.hpActual} | {segundo.hpActual} {segundo.nombre}")
+        print(f"{mago1.nombre}: {mago1.hpActual}/{mago1.hpMax}   |   {mago2.nombre}: {mago2.hpActual}/{mago2.hpMax}")
         input()
 
     if primero.hpActual > segundo.hpActual:
@@ -189,8 +199,7 @@ def enfrentamiento(mago1,mago2):
 
 
 player1 = nombrar_Jugador()
-player1.subir_Nivel()
-rival1 = Rival(1,"rival1","Agua",20,20,5,5,5,1)
+rival1 = Rival(1,"rival1","Agua",18,18,4,4,4,0)
 jefe1 = Jefe(1,"jefeprueba","Neutral",20,20,5,5,5,10)
 rival1.repartir_Stats()
 jefe1.repartir_Stats()
