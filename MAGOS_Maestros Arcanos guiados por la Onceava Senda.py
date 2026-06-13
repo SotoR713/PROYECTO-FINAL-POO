@@ -111,7 +111,7 @@ class Mago:
         self._hpActual += curacion
         if self._hpActual > self._hpMax:
             self._hpActual = self._hpMax
-        print(f"recupera {curacion}: vida {self._hpActual}/{self._hpMax}")
+        print(f"recupera {curacion}: vida {self._hpActual}/{self._hpMax}\n")
 
 class Jugador(Mago):
 
@@ -203,11 +203,13 @@ def nombrar_Jugador():
             print("Elemento no existe")
             elemento_Jugador = "error"
 
-    player1 = Jugador(idJugador,nombre_Usuario,elemento_Jugador,20,20,5,5,5,0)
+    player1 = Jugador(idJugador,nombre_Usuario,elemento_Jugador,20,20,8,8,8,0)
        
     return player1
 
 def enfrentamiento(mago1,mago2):
+    turno = 1
+
     if mago1.get_velocidad() > mago2.get_velocidad():
         primero = mago1
         segundo = mago2
@@ -216,7 +218,7 @@ def enfrentamiento(mago1,mago2):
         segundo = mago1
          
     while primero.get_hpActual() > 0 and segundo.get_hpActual() > 0:
-               
+        print(f"turno {turno}")
         daño = primero.calcular_Daño(segundo)
         segundo.recibir_Daño(daño)
         print(f"el mago {primero.get_nombre()} ataco y causo {daño} a mago {segundo.get_nombre()}")
@@ -227,6 +229,7 @@ def enfrentamiento(mago1,mago2):
         print(f"{mago1.get_nombre()}: {mago1.get_hpActual()}/{mago1.get_hpMax()}           |      {mago2.get_nombre()}: {mago2.get_hpActual()}/{mago2.get_hpMax()}")
         print(f"{"▓"*mago1.get_hpActual()}{"░"* (mago1.get_hpMax()-mago1.get_hpActual())}   |   {"░"* (mago2.get_hpMax()-mago2.get_hpActual())}{"▓"*mago2.get_hpActual()}")
         input()
+        turno += 1
 
     if primero.get_hpActual() > segundo.get_hpActual():
         print(f"EL Mago {primero.get_nombre()} derroto a {segundo.get_nombre()}")
@@ -264,9 +267,9 @@ class Generadores:
     def get_valor_Camino(self):
         return self._valor_Camino
 
-    def generar_Semilla(self,idJugador()):
+    def generar_Semilla(self,idJugador):
         verificador = 0
-        for i in str(idJugador()):
+        for i in str(idJugador):
             verificador += int(i)
         self._semilla = verificador
 
@@ -316,6 +319,16 @@ listaJefes =[
     Jefe("8","CeszarW",Fuego,17,17,7,5,6,0),
     Jefe("9","CarluxSanguis",Neutral,26,26,6,2,1,0),
 ]
+
+
+
+
+
+
+
+
+
+
 jefe_Actual = listaJefes[8]
 player1 = nombrar_Jugador()
 #rival1.repartir_Stats()
