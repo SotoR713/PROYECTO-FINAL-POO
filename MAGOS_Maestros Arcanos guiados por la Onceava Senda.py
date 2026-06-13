@@ -246,43 +246,102 @@ def enfrentamiento(mago1,mago2):
     mago1.mostrar_Stats()
 
 class Generadores:
-    def __init__ (self,semilla,posicion_Actual, siguiente0, siguiente1,valor_Camino):
-        self._semilla = semilla
-        self._posicion_Actual = posicion_Actual
-        self._siguiente0 = siguiente0
-        self._siguiente1 = siguiente1
-        self._valor_Camino = valor_Camino
+    def __init__ (self,estado):
+        self._estado = estado
+        
+    def aleatorio(self): 
+        self._estado = (self._estado * 120295 + 713) % (240214)
+        return self._estado
 
-    camino=[]
+def raiz_digital(numero):
+    while numero >= 10:
+        suma = 0
+        for i in str(numero):
+            suma += int(i)
+        numero = suma
+    return numero
+
+# class Mapa:
+#     def __init__ (self,semilla,posicion_Actual, siguiente0, siguiente1,valor_Camino):
+#         self._semilla = semilla
+#         self._posicion_Actual = posicion_Actual
+#         self._siguiente0 = siguiente0
+#         self._siguiente1 = siguiente1
+#         self._valor_Camino = valor_Camino
+
+#     camino=[]
 
 
-    def get_semilla(self):
-        return self._semilla
-    def get_posicion_Actual(self):
-        return self._posicion_Actual
-    def get_siguiente0(self):
-        return self._siguiente0
-    def get_siguiente1(self):
-        return self._siguiente1
-    def get_valor_Camino(self):
-        return self._valor_Camino
+#     def get_semilla(self):
+#         return self._semilla
+#     def get_posicion_Actual(self):
+#         return self._posicion_Actual
+#     def get_siguiente0(self):
+#         return self._siguiente0
+#     def get_siguiente1(self):
+#         return self._siguiente1
+#     def get_valor_Camino(self):
+#         return self._valor_Camino
 
-    def generar_Semilla(self,idJugador):
-        verificador = 0
-        for i in str(idJugador):
-            verificador += int(i)
-        self._semilla = verificador
+#     def generar_Semilla(self,idJugador):
+#         verificador = 0
+#         for i in str(idJugador):
+#             verificador += int(i)
+#         self._semilla = verificador
+        
 
-    def generar_posicion_Actual(self):
-        avanzar = input("que camino quieres tomar? \n0-arriba\n1-abajo\n:")
-        self.camino.append(avanzar)
-        self._posicion_Actual += avanzar
+#     def generar_posicion_Actual(self):
+#         avanzar = input("que camino quieres tomar? \n0-arriba\n1-abajo\n:")
+#         self._camino.append(avanzar)
+#         self._posicion_Actual += avanzar
 
-    def generar_valor_Camino(self):
-        valor = 0
-        for i in self.camino:
-            valor += int(i)
-        self._valor_Camino = valor
+#     def generar_Siguientes(self):
+#         if self.validar_vs_Jefe() == True:
+#             self._siguiente0 = "Jefe"
+#             self._siguiente1 = "Jefe"
+#         else:
+#             self.generar_siguiente_no_Jefe()
+#         return self._siguiente0,self._siguiente1
+
+#     def  generar_siguiente_no_Jefe(self):
+#         v1 = (self._semilla * len(self._camino)* self.generar_valor_Camino() ) + 1
+#         for i in str(v1):
+#             v1 += int(i)
+#         v1 =v1 % 10
+#         if v1 <= 5:
+#             self._siguiente1= "Rival"
+#         elif v1 <= 7:
+#             self._siguiente1= "Cofre"
+#         else:
+#             self._siguiente1= "Curacion"
+#         v2 = (self._semilla * len(self._camino)* self.generar_valor_Camino() ) + 2
+#         for i in str(v2):
+#             v2 += int(i)
+#         v2 =v2 % 10
+#         if v2 < 5:
+#             self._siguiente0= "Rival"
+#         elif v2 < 7:
+#             self._siguiente0= "Cofre"
+#         else:
+#             self._siguiente0= "Curacion"
+#         return self._siguiente0,self._siguiente1
+        
+#     def generar_valor_Camino(self):
+#         valor = 0
+#         for i in self._camino:
+#             valor += int(i)
+#         self._valor_Camino = valor
+
+#     def validar_vs_Jefe(self):
+#         if (len(self._camino)+1) % 10 == 0:
+#             return True
+#         else:
+#             return False
+        
+
+
+
+
 
 listaRivales = [
     Rival("00","Sortilego",Agua,24,24,3,4,4,0),
@@ -329,11 +388,16 @@ listaJefes =[
 
 
 
-jefe_Actual = listaJefes[8]
-player1 = nombrar_Jugador()
-#rival1.repartir_Stats()
-jefe_Actual.repartir_Stats()
-player1.mostrar_Stats()
-#rival1.mostrar_Stats()
-jefe_Actual.mostrar_Stats()
-enfrentamiento(player1,jefe_Actual)
+# jefe_Actual = listaJefes[8]
+# player1 = nombrar_Jugador()
+# #rival1.repartir_Stats()
+# jefe_Actual.repartir_Stats()
+# player1.mostrar_Stats()
+# #rival1.mostrar_Stats()
+# jefe_Actual.mostrar_Stats()
+# enfrentamiento(player1,jefe_Actual)
+
+for n in range(1, 1001):
+    if raiz_digital(n) != 1 + (n - 1) % 9:
+        print(f"DIFIERE en {n}")
+print("prueba terminada")
