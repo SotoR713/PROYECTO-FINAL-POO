@@ -246,12 +246,19 @@ def enfrentamiento(mago1,mago2):
     mago1.mostrar_Stats()
 
 class Generadores:
-    def __init__ (self,estado):
-        self._estado = estado
+    def __init__ (self,dado):
+        self._dado = dado
         
     def aleatorio(self): 
-        self._estado = (self._estado * 120295 + 713) % (240214)
-        return self._estado
+        self._dado = (self._dado * 120295 + 713) % (240214)
+        return self._dado
+
+def crear_Rival(rivales,numeroDado):
+    v1 % 20
+    = Generadores.aleatorio(713) 
+    dobleraiz_digital(v1)
+
+
 
 def raiz_digital(numero):
     while numero >= 10:
@@ -260,6 +267,9 @@ def raiz_digital(numero):
             suma += int(i)
         numero = suma
     return numero
+
+
+
 
 # class Mapa:
 #     def __init__ (self,semilla,posicion_Actual, siguiente0, siguiente1,valor_Camino):
@@ -369,8 +379,8 @@ listaRivales = [
 listaJefes =[
     Jefe("0","Nullizador",Neutral,28,28,2,4,1,0),
     Jefe("1","Hexecutor",Fuego,16,16,10,4,5,0),
-    Jefe("2","Rootmancer",Tierra,22,22,6,6,1,0),
-    Jefe("3","CarlosTenebris",Neutral,25,25,7,2,1,0),
+    Jefe("2","ElProfeCaguamo",Tierra,22,22,6,6,1,0),
+    Jefe("3","Piri",Neutral,25,25,7,2,1,0),
     Jefe("4","Bytemaster",Agua,18,18,5,3,9,0),
     Jefe("5","Compilator",Planta,24,24,4,5,2,0),
     Jefe("6","Daemonus",Fuego,19,19,7,4,5,0),
@@ -388,16 +398,16 @@ listaJefes =[
 
 
 
-# jefe_Actual = listaJefes[8]
-# player1 = nombrar_Jugador()
-# #rival1.repartir_Stats()
-# jefe_Actual.repartir_Stats()
-# player1.mostrar_Stats()
-# #rival1.mostrar_Stats()
-# jefe_Actual.mostrar_Stats()
-# enfrentamiento(player1,jefe_Actual)
+jefe_Actual = listaJefes[8]
+player1 = nombrar_Jugador()
+#rival1.repartir_Stats()
+jefe_Actual.repartir_Stats()
+player1.mostrar_Stats()
+#rival1.mostrar_Stats()
+jefe_Actual.mostrar_Stats()
+enfrentamiento(player1,jefe_Actual)
 
-for n in range(1, 1001):
-    if raiz_digital(n) != 1 + (n - 1) % 9:
-        print(f"DIFIERE en {n}")
-print("prueba terminada")
+# for n in range(1, 1001):
+#     if raiz_digital(n) != 1 + (n - 1) % 9:
+#         print(f"DIFIERE en {n}")
+# print("prueba terminada")
