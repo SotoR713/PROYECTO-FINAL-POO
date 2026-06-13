@@ -1,4 +1,4 @@
-class valoracionCaracter():
+class valoracionCaracter:
     def __init__ (self, letra,valor):
         self.letra = letra
         self.valor = valor
@@ -32,11 +32,18 @@ listaCaracteres = [
     valoracionCaracter("z",6)
     ]
     
-class Elementos():
+class Elementos:
     def __init__ (self,nombre,fortaleza,debilidad):
-        self.nombre = nombre
-        self.fortaleza = fortaleza
-        self.debilidad = debilidad
+        self._nombre = nombre
+        self._fortaleza = fortaleza
+        self._debilidad = debilidad
+    
+    def get_nombre(self):
+        return self._nombre
+    def get_fortaleza(self):
+        return self._fortaleza
+    def get_debilidad(self):
+        return self._debilidad
 
 Agua = Elementos("Agua","Fuego","Tierra")
 Fuego = Elementos("Fuego","Planta","Agua")
@@ -46,46 +53,89 @@ Neutral = Elementos("Neutral","","")
 
 class Mago:
     def __init__ (self,ID,nombre,elemento,hpActual,hpMax,fuerza,armadura,velocidad,nivel):
-        self.ID = ID
-        self.nombre = nombre
-        self.elemento = elemento
-        self.hpActual = hpActual
-        self.hpMax = hpMax
-        self.fuerza = fuerza
-        self.armadura = armadura
-        self.velocidad = velocidad
-        self.nivel = nivel
+        self._ID = ID
+        self._nombre = nombre
+        self._elemento = elemento
+        self._hpActual = hpActual
+        self._hpMax = hpMax
+        self._fuerza = fuerza
+        self._armadura = armadura
+        self._velocidad = velocidad
+        self._nivel = nivel
+
+    def get_ID(self):
+        return self._ID
+    def get_nombre(self):
+        return self._nombre
+    def get_elemento(self):
+        return self._elemento
+    def get_hpActual(self):
+        return self._hpActual
+    def get_hpMax(self):
+        return self._hpMax
+    def get_fuerza(self):
+        return self._fuerza
+    def get_armadura(self):
+        return self._armadura
+    def get_velocidad(self):
+        return self._velocidad
+    def get_nivel(self):
+        return self._nivel
+    
+
 
     def repartir_Stats(self):
         raise NotImplementedError("funcion repartir no declarada")
     
     def mostrar_Stats(self):
-        print(f"{self.nombre}:\nHP: {self.hpActual}/{self.hpMax}\nFuerza: {self.fuerza}\nArmadura: {self.armadura}\nVelocidad: {self.velocidad}\nNivel: {self.nivel}")
+        print(f"{self.get_nombre()} de {self.get_elemento().get_nombre()}:\nHP: {self.get_hpActual()}/{self.get_hpMax()}\nFuerza: {self.get_fuerza()}\nArmadura: {self.get_armadura()}\nVelocidad: {self.get_velocidad()}\nNivel: {self.get_nivel()}")
 
+    def calcular_Daño(self,objetivo):
+        daño = self.get_fuerza() - objetivo.get_armadura()
+        if daño < 1:
+            daño=1
+        if objetivo.get_elemento().get_nombre() == self.get_elemento().get_fortaleza():
+            daño += (daño*5)//10
+        elif objetivo.get_elemento().get_nombre() == self.get_elemento().get_debilidad():
+            daño = (daño*5)//10       
+        if daño < 1:
+           daño=1
+        return daño
+        
+    def recibir_Daño(self,daño):
+        self._hpActual -= daño
+        if self._hpActual < 0:
+            self._hpActual = 0
+
+    def curar(self,curacion):
+        self._hpActual += curacion
+        if self._hpActual > self._hpMax:
+            self._hpActual = self._hpMax
+        print(f"recupera {curacion}: vida {self._hpActual}/{self._hpMax}")
 
 class Jugador(Mago):
 
     def repartir_Stats(self):
         puntos = 4
         while puntos > 0:
-                eleccion = int(input(f"tienes {puntos} puntos a repartir \n selecciona a que le quieres asignar el siguiente punto\n1-HP\n2-Fuerza\n3-Armadura\n4-Velocidad:\n"))
-                if eleccion == 1:
-                    self.hpMax += 1
-                    puntos -= 1
-                elif eleccion == 2:
-                    self.fuerza += 1
-                    puntos -= 1
-                elif eleccion == 3:
-                    self.armadura += 1
-                    puntos -= 1
-                elif eleccion == 4:
-                    self.velocidad += 1
-                    puntos -= 1
-                else:
-                    print("Estadistica no existe")
+            eleccion = int(input(f"tienes {puntos} puntos a repartir \n selecciona a que le quieres asignar el siguiente punto\n1-HP\n2-Fuerza\n3-Armadura\n4-Velocidad:\n"))
+            if eleccion == 1:
+                self._hpMax += 1
+                puntos -= 1
+            elif eleccion == 2:
+                self._fuerza += 1
+                puntos -= 1
+            elif eleccion == 3:
+                self._armadura += 1
+                puntos -= 1
+            elif eleccion == 4:
+                self._velocidad += 1
+                puntos -= 1
+            else:
+                print("Estadistica no existe")
 
     def subir_Nivel(self):
-        self.nivel += 1
+        self._nivel += 1
         self.repartir_Stats()
 
 
@@ -93,36 +143,37 @@ class Rival(Mago):
 
     def repartir_Stats(self):
 
-        puntos = 4 * (self.nivel - (2*(self.nivel//10)))
+        puntos = 4 * (self.get_nivel() - (2*(self.get_nivel()//10)))
 
         while puntos > 4:
-            self.hpMax += 1
-            self.fuerza += 1
-            self.armadura += 1
-            self.velocidad += 1
+            self._hpMax += 1
+            self._fuerza += 1
+            self._armadura += 1
+            self._velocidad += 1
             puntos -= 4
         while puntos > 0:
-            self.velocidad +=1
+            self._velocidad +=1
             puntos -= 1
-        self.hpActual = self.hpMax        
+        self._hpActual = self._hpMax
+
 
 class Jefe(Mago):
 
     def repartir_Stats(self):
             
-        puntos = 4 * self.nivel 
+        puntos = 4 * self._nivel
 
         while puntos > 8:
-            self.hpMax += 1
-            self.fuerza += 1
-            self.armadura += 1
-            self.velocidad += 1
+            self._hpMax += 1
+            self._fuerza += 1
+            self._armadura += 1
+            self._velocidad += 1
             puntos -= 4
         while puntos > 0:
-            self.hpMax += 1
-            self.velocidad +=1
+            self._hpMax += 1
+            self._velocidad +=1
             puntos -= 2
-        self.hpActual = self.hpMax
+        self._hpActual = self._hpMax
 
 def nombrar_Jugador():
     nombre_Usuario = input("Ingrese el nombre del usuario ")
@@ -139,15 +190,15 @@ def nombrar_Jugador():
     while elemento_Jugador == "error":
         elemento_Jugador = int(input("selecciona un elemento de la lista: \n1-Agua\n2-Fuego\n3-Planta\n4-Tierra\n5-Neutral\n:"))
         if elemento_Jugador == 1:
-            elemento_Jugador = "Agua"
+            elemento_Jugador = Agua
         elif elemento_Jugador == 2:
-            elemento_Jugador = "Fuego"
+            elemento_Jugador = Fuego
         elif elemento_Jugador == 3:
-            elemento_Jugador = "Planta"
+            elemento_Jugador = Planta
         elif elemento_Jugador == 4:
-            elemento_Jugador = "Tierra"
+            elemento_Jugador = Tierra
         elif elemento_Jugador == 5:
-            elemento_Jugador = "Neutral"
+            elemento_Jugador = Neutral
         else:
             print("Elemento no existe")
             elemento_Jugador = "error"
@@ -157,54 +208,119 @@ def nombrar_Jugador():
     return player1
 
 def enfrentamiento(mago1,mago2):
-    if mago1.velocidad > mago2.velocidad:
+    if mago1.get_velocidad() > mago2.get_velocidad():
         primero = mago1
         segundo = mago2
     else:
         primero = mago2
         segundo = mago1
          
-    while primero.hpActual > 0 and segundo.hpActual > 0:
-        daño =  primero.fuerza - segundo.armadura
-        if daño < 1:
-            daño = 1
-        segundo.hpActual -= daño
-        print(f"el mago {primero.nombre} ataco y causo {daño} a mago {segundo.nombre}\nvida {primero.nombre} {primero.hpActual} | {segundo.hpActual} {segundo.nombre}")
-        daño =  segundo.fuerza - primero.armadura
-        if daño < 1:
-            daño = 1
-        if segundo.hpActual > 0:
-            primero.hpActual -= daño 
-            print(f"el mago {segundo.nombre} ataco y causo {daño} a mago {primero.nombre}\nvida {primero.nombre} {primero.hpActual} | {segundo.hpActual} {segundo.nombre}")
-        print(f"{mago1.nombre}: {mago1.hpActual}/{mago1.hpMax}   |   {mago2.nombre}: {mago2.hpActual}/{mago2.hpMax}")
+    while primero.get_hpActual() > 0 and segundo.get_hpActual() > 0:
+               
+        daño = primero.calcular_Daño(segundo)
+        segundo.recibir_Daño(daño)
+        print(f"el mago {primero.get_nombre()} ataco y causo {daño} a mago {segundo.get_nombre()}")
+        daño = segundo.calcular_Daño(primero)
+        if segundo.get_hpActual() > 0:
+            primero.recibir_Daño(daño)
+            print(f"el mago {segundo.get_nombre()} ataco y causo {daño} a mago {primero.get_nombre()}")
+        print(f"{mago1.get_nombre()}: {mago1.get_hpActual()}/{mago1.get_hpMax()}           |      {mago2.get_nombre()}: {mago2.get_hpActual()}/{mago2.get_hpMax()}")
+        print(f"{"▓"*mago1.get_hpActual()}{"░"* (mago1.get_hpMax()-mago1.get_hpActual())}   |   {"░"* (mago2.get_hpMax()-mago2.get_hpActual())}{"▓"*mago2.get_hpActual()}")
         input()
 
-    if primero.hpActual > segundo.hpActual:
-        print(f"EL MAGO {primero.nombre} derroto a {segundo.nombre}")
+    if primero.get_hpActual() > segundo.get_hpActual():
+        print(f"EL Mago {primero.get_nombre()} derroto a {segundo.get_nombre()}")
         ganador = primero
     else:
-        print(f"EL MAGO {segundo.nombre} derroto a {primero.nombre}")
+        print(f"EL Mago {segundo.get_nombre()} derroto a {primero.get_nombre()}")
         ganador = segundo
     
     if ganador == mago1:
         mago1.subir_Nivel()
-        mago1.hpActual += ((mago1.hpMax * 3)//10)
-    if mago1.hpActual > mago1.hpMax:
-        mago1.hpActual = mago1.hpMax
+        mago1.curar((mago1.get_hpMax() * 3) // 10)
+    
         
     mago1.mostrar_Stats()
 
+class Generadores:
+    def __init__ (self,semilla,posicion_Actual, siguiente0, siguiente1,valor_Camino):
+        self._semilla = semilla
+        self._posicion_Actual = posicion_Actual
+        self._siguiente0 = siguiente0
+        self._siguiente1 = siguiente1
+        self._valor_Camino = valor_Camino
+
+    camino=[]
 
 
+    def get_semilla(self):
+        return self._semilla
+    def get_posicion_Actual(self):
+        return self._posicion_Actual
+    def get_siguiente0(self):
+        return self._siguiente0
+    def get_siguiente1(self):
+        return self._siguiente1
+    def get_valor_Camino(self):
+        return self._valor_Camino
 
+    def generar_Semilla(self,idJugador()):
+        verificador = 0
+        for i in str(idJugador()):
+            verificador += int(i)
+        self._semilla = verificador
 
+    def generar_posicion_Actual(self):
+        avanzar = input("que camino quieres tomar? \n0-arriba\n1-abajo\n:")
+        self.camino.append(avanzar)
+        self._posicion_Actual += avanzar
+
+    def generar_valor_Camino(self):
+        valor = 0
+        for i in self.camino:
+            valor += int(i)
+        self._valor_Camino = valor
+
+listaRivales = [
+    Rival("00","Sortilego",Agua,24,24,3,4,4,0),
+    Rival("01","Debugorio",Agua,24,24,3,4,4,0),
+    Rival("02","Hexomante",Fuego,18,18,8,4,5,0),
+    Rival("03","Algoritus",Planta,22,22,4,6,3,0),
+    Rival("04","Binarcano",Tierra,26,26,3,5,1,0),
+    Rival("05","Stackomante",Neutral,20,20,5,5,5,0),
+    Rival("06","Recursio",Agua,17,17,6,3,9,0),
+    Rival("07","Kernelius",Fuego,15,15,10,4,6,0),
+    Rival("08","Overflorius",Planta,19,19,4,8,4,0),
+    Rival("09","Crashelio",Tierra,21,21,5,7,2,0),
+    Rival("10","Punterius",Agua,30,30,1,2,2,0),
+    Rival("11","Hexagoro",Fuego,16,16,11,3,5,0),
+    Rival("12","Alquimia",Planta,18,18,6,5,6,0),
+    Rival("13","Oraclon",Tierra,23,23,4,7,1,0),
+    Rival("14","Trucanor",Agua,20,20,7,2,6,0),
+    Rival("15","Nigrombo",Fuego,17,17,9,5,4,0),
+    Rival("16","Musgorio",Planta,25,25,3,6,1,0),
+    Rival("17","Pedrurio",Tierra,28,28,2,5,0,0),
+    Rival("18","Cubistar",Agua,14,14,7,4,10,0),
+    Rival("19","Esotron",Fuego,20,20,6,4,5,0)
+]
+
+listaJefes =[
+    Jefe("0","Nullizador",Neutral,28,28,2,4,1,0),
+    Jefe("1","Hexecutor",Fuego,16,16,10,4,5,0),
+    Jefe("2","Rootmancer",Tierra,22,22,6,6,1,0),
+    Jefe("3","CarlosTenebris",Neutral,25,25,7,2,1,0),
+    Jefe("4","Bytemaster",Agua,18,18,5,3,9,0),
+    Jefe("5","Compilator",Planta,24,24,4,5,2,0),
+    Jefe("6","Daemonus",Fuego,19,19,7,4,5,0),
+    Jefe("7","Fatalerror",Neutral,20,20,8,3,4,0),
+    Jefe("8","CeszarW",Fuego,17,17,7,5,6,0),
+    Jefe("9","CarluxSanguis",Neutral,26,26,6,2,1,0),
+]
+jefe_Actual = listaJefes[8]
 player1 = nombrar_Jugador()
-rival1 = Rival(1,"rival1","Agua",18,18,4,4,4,0)
-jefe1 = Jefe(1,"jefeprueba","Neutral",20,20,5,5,5,10)
-rival1.repartir_Stats()
-jefe1.repartir_Stats()
+#rival1.repartir_Stats()
+jefe_Actual.repartir_Stats()
 player1.mostrar_Stats()
-rival1.mostrar_Stats()
-jefe1.mostrar_Stats()
-
-enfrentamiento(player1,rival1)
+#rival1.mostrar_Stats()
+jefe_Actual.mostrar_Stats()
+enfrentamiento(player1,jefe_Actual)
