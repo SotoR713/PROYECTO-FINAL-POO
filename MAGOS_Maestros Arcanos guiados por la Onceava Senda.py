@@ -143,7 +143,7 @@ class Rival(Mago):
 
     def repartir_Stats(self):
 
-        puntos = 4 * (self.get_nivel() - (2*(self.get_nivel()//10)))
+        puntos = 4 * (self._nivel - (2*(self._nivel//10)))
 
         while puntos > 4:
             self._hpMax += 1
@@ -253,11 +253,16 @@ class Generadores:
         self._dado = (self._dado * 120295 + 713) % (240214)
         return self._dado
 
-def crear_Rival(rivales,numeroDado):
-    v1 % 20
-    = Generadores.aleatorio(713) 
-    dobleraiz_digital(v1)
+def crear_Rival(numeroDado,valorPosicion_Actual):
+    v1 = numeroDado * valorPosicion_Actual
+    v1 = v1 %20
+    v2 = numeroDado
 
+    valores_Rival = listaRivales[v1]
+    rival_Actual = Rival(valores_Rival.get_ID(),valores_Rival.get_nombre(),valores_Rival.get_elemento(),valores_Rival.get_hpActual(),valores_Rival.get_hpMax(),valores_Rival.get_fuerza(),valores_Rival.get_armadura(),valores_Rival.get_velocidad(),valorPosicion_Actual)
+
+    return rival_Actual
+   
 
 
 def raiz_digital(numero):
