@@ -97,7 +97,7 @@ class Mago:
         if objetivo.get_elemento().get_nombre() == self.get_elemento().get_fortaleza():
             daño += (daño*5)//10
         elif objetivo.get_elemento().get_nombre() == self.get_elemento().get_debilidad():
-            daño = (daño*5)//10       
+            daño = (daño*5)//10
         if daño < 1:
            daño=1
         return daño
@@ -249,21 +249,53 @@ class Generadores:
     def __init__ (self,dado):
         self._dado = dado
         
-    def aleatorio(self): 
+    def aleatorio(self):
         self._dado = (self._dado * 120295 + 713) % (240214)
         return self._dado
 
 def crear_Rival(numeroDado,valorPosicion_Actual):
     v1 = numeroDado * valorPosicion_Actual
     v1 = v1 %20
-    v2 = numeroDado
+
+    asignacionElemento = (numeroDado % 10) // 2
+    if asignacionElemento == 0:
+        v2 = Agua
+    elif asignacionElemento == 1:
+        v2 = Fuego
+    elif asignacionElemento == 2:
+        v2 = Planta
+    elif asignacionElemento == 3:
+        v2 = Tierra
+    else:
+        v2 = Neutral
+
 
     valores_Rival = listaRivales[v1]
-    rival_Actual = Rival(valores_Rival.get_ID(),valores_Rival.get_nombre(),valores_Rival.get_elemento(),valores_Rival.get_hpActual(),valores_Rival.get_hpMax(),valores_Rival.get_fuerza(),valores_Rival.get_armadura(),valores_Rival.get_velocidad(),valorPosicion_Actual)
-
+    rival_Actual = Rival(valores_Rival.get_ID(),valores_Rival.get_nombre(),v2,valores_Rival.get_hpActual(),valores_Rival.get_hpMax(),valores_Rival.get_fuerza(),valores_Rival.get_armadura(),valores_Rival.get_velocidad(),valorPosicion_Actual)
+    rival_Actual.repartir_Stats()
     return rival_Actual
    
+def crear_Jefe(numeroDado,valorPosicion_Actual):
+    v1 = numeroDado
+    v1 = v1 % 10
 
+    asignacionElemento = (numeroDado % 10) // 2
+    if asignacionElemento == 0:
+        v2 = Agua
+    elif asignacionElemento == 1:
+        v2 = Fuego
+    elif asignacionElemento == 2:
+        v2 = Planta
+    elif asignacionElemento == 3:
+        v2 = Tierra
+    else:
+        v2 = Neutral
+
+
+    valores_Jefe = listaJefes[v1]
+    jefe_Actual = Jefe(valores_Jefe.get_ID(),valores_Jefe.get_nombre(),v2,valores_Jefe.get_hpActual(),valores_Jefe.get_hpMax(),valores_Jefe.get_fuerza(),valores_Jefe.get_armadura(),valores_Jefe.get_velocidad(),valorPosicion_Actual)
+    jefe_Actual.repartir_Stats()
+    return jefe_Actual
 
 def raiz_digital(numero):
     while numero >= 10:
@@ -275,87 +307,100 @@ def raiz_digital(numero):
 
 
 
+class Mapa:
+    def __init__ (self,jugador):
+        self._jugador = jugador
+        self._generador = Generadores(raiz_digital(jugador.get_ID()))
+        self._posicion = 0
+        self._camino = []
+        self._siguiente0 = "Rival"
+        self._siguiente1 = "Rival"
 
-# class Mapa:
-#     def __init__ (self,semilla,posicion_Actual, siguiente0, siguiente1,valor_Camino):
-#         self._semilla = semilla
-#         self._posicion_Actual = posicion_Actual
-#         self._siguiente0 = siguiente0
-#         self._siguiente1 = siguiente1
-#         self._valor_Camino = valor_Camino
+    def get_jugador(self):
+        return self._jugador
+    def get_generador(self):
+        return self._generador
+    def get_posicion(self):
+        return self._posicion
+    def get_camino(self):
+        return self._camino
+    def get_siguiente0(self):
+        return self._siguiente0
+    def get_siguiente1(self):
+        return self._siguiente1
+    
 
-#     camino=[]
+    def avanzar(self):
+        eleccion = ""
+        while eleccion != "0" and eleccion !="1":
+            eleccion = input(f"seleccione a donde avanzar:\n0-{self.get_siguiente0()}\n1-{self.get_siguiente1()}\n")
+                    
+        self._camino.append(eleccion)
+        self._posicion += 1
+        if eleccion == "0":
+            return self.get_siguiente0()
+        elif eleccion == "1":
+            return   self.get_siguiente1()
 
+    def validar_vs_Jefe(self):
+        if (len(self._camino)) % 10 == 0:
+            return True
+        else:
+            return False
 
-#     def get_semilla(self):
-#         return self._semilla
-#     def get_posicion_Actual(self):
-#         return self._posicion_Actual
-#     def get_siguiente0(self):
-#         return self._siguiente0
-#     def get_siguiente1(self):
-#         return self._siguiente1
-#     def get_valor_Camino(self):
-#         return self._valor_Camino
+    def generar_Siguientes(self):
+        if self.validar_vs_Jefe() == True:
+            self._siguiente0 = "Jefe"
+            self._siguiente1 = "Jefe"
+        else:
+            self.generar_siguiente_no_Jefe()
+        return self._siguiente0,self._siguiente1
 
-#     def generar_Semilla(self,idJugador):
-#         verificador = 0
-#         for i in str(idJugador):
-#             verificador += int(i)
-#         self._semilla = verificador
-        
-
-#     def generar_posicion_Actual(self):
-#         avanzar = input("que camino quieres tomar? \n0-arriba\n1-abajo\n:")
-#         self._camino.append(avanzar)
-#         self._posicion_Actual += avanzar
-
-#     def generar_Siguientes(self):
-#         if self.validar_vs_Jefe() == True:
-#             self._siguiente0 = "Jefe"
-#             self._siguiente1 = "Jefe"
-#         else:
-#             self.generar_siguiente_no_Jefe()
-#         return self._siguiente0,self._siguiente1
-
-#     def  generar_siguiente_no_Jefe(self):
-#         v1 = (self._semilla * len(self._camino)* self.generar_valor_Camino() ) + 1
-#         for i in str(v1):
-#             v1 += int(i)
-#         v1 =v1 % 10
-#         if v1 <= 5:
-#             self._siguiente1= "Rival"
-#         elif v1 <= 7:
-#             self._siguiente1= "Cofre"
-#         else:
-#             self._siguiente1= "Curacion"
-#         v2 = (self._semilla * len(self._camino)* self.generar_valor_Camino() ) + 2
-#         for i in str(v2):
-#             v2 += int(i)
-#         v2 =v2 % 10
-#         if v2 < 5:
-#             self._siguiente0= "Rival"
-#         elif v2 < 7:
-#             self._siguiente0= "Cofre"
-#         else:
-#             self._siguiente0= "Curacion"
-#         return self._siguiente0,self._siguiente1
-        
-#     def generar_valor_Camino(self):
-#         valor = 0
-#         for i in self._camino:
-#             valor += int(i)
-#         self._valor_Camino = valor
-
-#     def validar_vs_Jefe(self):
-#         if (len(self._camino)+1) % 10 == 0:
-#             return True
-#         else:
-#             return False
-        
+    def  generar_siguiente_no_Jefe(self):
+        v1 = (self.get_generador().aleatorio())
+        v1=raiz_digital(v1)
+        if v1 <= 6:
+            self._siguiente1= "Rival"
+        elif v1 <= 8:
+            self._siguiente1= "Cofre"
+        else:
+            self._siguiente1= "Curacion"
+        v2 = (self.get_generador().aleatorio() )
+        v2=raiz_digital(v2)
+        if v2 <= 6:
+            self._siguiente0= "Rival"
+        elif v2 <= 8:
+            self._siguiente0= "Cofre"
+        else:
+            self._siguiente0= "Curacion"
+        return self._siguiente0,self._siguiente1
 
 
+    def resolver_Evento(self, evento):
+        if evento == "Rival":
+            rival = crear_Rival(self.get_generador().aleatorio(), len(self.get_camino()))
+            enfrentamiento(self.get_jugador(), rival)
+        elif evento == "Jefe":
+            jefe = crear_Jefe(self.get_generador().aleatorio(), len(self.get_camino()))
+            enfrentamiento(self.get_jugador(), jefe)
+        elif evento == "Curacion":
+            self.get_jugador().curar(self.get_jugador().get_hpMax()*3//10)
+        elif evento == "Cofre":
+            v1 = (self.get_generador().aleatorio() * self.get_generador().aleatorio() )// 713
+            v1 = raiz_digital(v1)
 
+            if v1 <= 4:
+                self.get_jugador().subir_Nivel()
+            elif v1 <= 7:
+                vidaCurar=self.get_jugador()._hpMax*3//10
+                self.get_jugador().curar(vidaCurar)
+            elif v1 <= 8:
+                self.resolver_Evento("Rival")
+            else:
+                vidaDaño=self.get_jugador()._hpMax*1//10
+                self.get_jugador().recibir_Daño(vidaDaño)
+
+     
 
 
 listaRivales = [
@@ -396,23 +441,14 @@ listaJefes =[
 
 
 
-
-
-
-
-
-
-
-jefe_Actual = listaJefes[8]
 player1 = nombrar_Jugador()
-#rival1.repartir_Stats()
-jefe_Actual.repartir_Stats()
-player1.mostrar_Stats()
-#rival1.mostrar_Stats()
-jefe_Actual.mostrar_Stats()
-enfrentamiento(player1,jefe_Actual)
+mapa1 = Mapa(player1)
+contador=0
+while mapa1.get_jugador().get_hpActual() > 0:
+    print(f"Posición: {mapa1.get_posicion()}")
+    mapa1.resolver_Evento(mapa1.avanzar())
 
-# for n in range(1, 1001):
-#     if raiz_digital(n) != 1 + (n - 1) % 9:
-#         print(f"DIFIERE en {n}")
-# print("prueba terminada")
+    print(mapa1.generar_Siguientes())
+    contador += 1
+print(mapa1.get_camino())
+print(mapa1.get_posicion())
