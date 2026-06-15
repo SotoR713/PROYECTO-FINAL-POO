@@ -99,6 +99,12 @@ class Mago:
     def repartir_Stats(self):
         raise NotImplementedError("funcion repartir no declarada")
     
+    def calcular_Critico(self,rival):
+        raise NotImplementedError("funcion critico no declarada")
+    
+    def evasion(self,rival):
+        raise NotImplementedError("funcion evasion no declarada")
+    
     def mostrar_Stats(self):
         print(f"{self.get_nombre()} de {self.get_elemento().get_nombre()}:\nHP: {self.get_hpActual()}/{self.get_hpMax()}\nFuerza: {self.get_fuerza()}\nArmadura: {self.get_armadura()}\nVelocidad: {self.get_velocidad()}\nNivel: {self.get_nivel()}\n")
 
@@ -125,13 +131,13 @@ class Mago:
             self._hpActual = self._hpMax
         print(f"recupera {cantidadCurar}: vida {self._hpActual}/{self._hpMax}\n")
 
-    def calcular_Critico(self,rival):
-        raise NotImplementedError("funcion critico no declarada")
-    
-    def evasion(self,rival):
-        raise NotImplementedError("funcion evasion no declarada")
 
 class Jugador(Mago):
+
+    def subir_Nivel(self):
+        self._nivel += 1
+        self.repartir_Stats()
+        self.mostrar_Stats()
 
     def repartir_Stats(self):
         puntos = 4
@@ -157,10 +163,6 @@ class Jugador(Mago):
             else:
                 print("Estadistica no existe")
 
-    def subir_Nivel(self):
-        self._nivel += 1
-        self.repartir_Stats()
-        self.mostrar_Stats()
 
     def calcular_Critico(self,rival,aleato,daño):
         difVel = self._velocidad - rival._velocidad
@@ -462,23 +464,20 @@ class Mapa:
     def get_siguiente1(self):
         return self._siguiente1
     
-
+        
     def avanzar(self):
         eleccion = ""
-        caminoHistorico=""
+        self._caminoHistorico=""
         for i in self._historial:
-            caminoHistorico += i
-        print(f" {" " * len(caminoHistorico)}{self.get_siguiente0().caracter}")
-        print(caminoHistorico)
-        print(f" {" " * len(caminoHistorico)}{self.get_siguiente1().caracter}")
+            self._caminoHistorico += i
+        print(f" {" " * len(self._caminoHistorico)}{self.get_siguiente0().caracter}")
+        print(self._caminoHistorico)
+        print(f" {" " * len(self._caminoHistorico)}{self.get_siguiente1().caracter}")
         while eleccion != "0" and eleccion !="1":
             eleccion = input(f"seleccione a donde avanzar:\n0-{self.get_siguiente0().nombre}\n1-{self.get_siguiente1().nombre}\n")
                     
         self._camino.append(eleccion)
-        self._posicion += 1
-        
-               
-        
+        self._posicion += 1   
 
         if eleccion == "0":
             return self.get_siguiente0()
@@ -601,7 +600,7 @@ listaJefes =[
 
 player1 = nombrar_Jugador()
 mapa1 = Mapa(player1)
-while mapa1.get_jugador().get_hpActual() > 0:
+while mapa1.get_jugador().get_hpActual() >0:
     print(f"Posición: {mapa1.get_posicion()}")
     mapa1.resolver_Evento(mapa1.avanzar())
     mapa1.generar_Siguientes()
