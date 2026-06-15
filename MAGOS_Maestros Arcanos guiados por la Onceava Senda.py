@@ -129,7 +129,7 @@ class Mago:
         raise NotImplementedError("funcion critico no declarada")
     
     def evasion(self,rival):
-        raise NotImplementedError("funcion critico no declarada")
+        raise NotImplementedError("funcion evasion no declarada")
 
 class Jugador(Mago):
 
