@@ -88,7 +88,7 @@ class Mago:
         raise NotImplementedError("funcion repartir no declarada")
     
     def mostrar_Stats(self):
-        print(f"{self.get_nombre()} de {self.get_elemento().get_nombre()}:\nHP: {self.get_hpActual()}/{self.get_hpMax()}\nFuerza: {self.get_fuerza()}\nArmadura: {self.get_armadura()}\nVelocidad: {self.get_velocidad()}\nNivel: {self.get_nivel()}")
+        print(f"{self.get_nombre()} de {self.get_elemento().get_nombre()}:\nHP: {self.get_hpActual()}/{self.get_hpMax()}\nFuerza: {self.get_fuerza()}\nArmadura: {self.get_armadura()}\nVelocidad: {self.get_velocidad()}\nNivel: {self.get_nivel()}\n")
 
     def calcular_Daño(self,objetivo):
         daño = self.get_fuerza() - objetivo.get_armadura()
@@ -112,6 +112,12 @@ class Mago:
         if self._hpActual > self._hpMax:
             self._hpActual = self._hpMax
         print(f"recupera {curacion}: vida {self._hpActual}/{self._hpMax}\n")
+
+    def calcular_Critico(self,rival):
+        raise NotImplementedError("funcion critico no declarada")
+    
+    def evacion(self,rival):
+        raise NotImplementedError("funcion critico no declarada")
 
 class Jugador(Mago):
 
@@ -137,6 +143,33 @@ class Jugador(Mago):
     def subir_Nivel(self):
         self._nivel += 1
         self.repartir_Stats()
+        self.mostrar_Stats()
+
+    def calcular_Critico(self,rival,aleato,daño):
+        difVel = self._velocidad - rival._velocidad
+        if difVel <= 0:
+            porcentajeDaño = 0
+        else:
+            porcentajeDaño = (difVel*100)//rival._velocidad
+        
+        if porcentajeDaño > 30:
+            porcentajeDaño= 30
+        elif porcentajeDaño < 0:
+            porcentajeDaño = 0     
+
+        activacion = aleato
+        activacion = activacion % 100
+
+        if activacion <= porcentajeDaño:
+            daño += (daño*50)//100
+
+        return daño
+    
+    def evacion(self, rival):
+
+        pass
+
+
 
 
 class Rival(Mago):
@@ -156,6 +189,15 @@ class Rival(Mago):
             puntos -= 1
         self._hpActual = self._hpMax
 
+    def calcular_Critico(self,rival,aleato,daño):
+
+        porcentajeDaño = 10   
+
+        activacion = aleato %100
+
+        if activacion <= porcentajeDaño:
+            daño += (daño*50)//100
+        return daño
 
 class Jefe(Mago):
 
@@ -174,7 +216,16 @@ class Jefe(Mago):
             self._velocidad +=1
             puntos -= 2
         self._hpActual = self._hpMax
+   
+    def calcular_Critico(self,rival,aleato,daño):
+        porcentajeDaño = 15
+      
+        activacion = aleato % 100
 
+        if activacion <= porcentajeDaño:
+            daño += (daño*50)//100
+        return daño
+        
 def nombrar_Jugador():
     nombre_Usuario = input("Ingrese el nombre del usuario ")
     idJugador = 0
@@ -204,7 +255,9 @@ def nombrar_Jugador():
             elemento_Jugador = "error"
 
     player1 = Jugador(idJugador,nombre_Usuario,elemento_Jugador,20,20,8,8,8,0)
-       
+
+    player1.mostrar_Stats()
+    
     return player1
 
 def enfrentamiento(mago1,mago2):
@@ -220,11 +273,23 @@ def enfrentamiento(mago1,mago2):
     while primero.get_hpActual() > 0 and segundo.get_hpActual() > 0:
         print(f"turno {turno}")
         daño = primero.calcular_Daño(segundo)
+        v1=daño
+        daño = primero.calcular_Critico(segundo,mapa1.get_generador().aleatorio(),daño)
+        v2 = daño
+        v3 = v2-v1
         segundo.recibir_Daño(daño)
+        if v3 != 0:
+            print("¡¡¡CRITICO!!!")    
         print(f"el mago {primero.get_nombre()} ataco y causo {daño} a mago {segundo.get_nombre()}")
         daño = segundo.calcular_Daño(primero)
+        v1=daño
+        daño = segundo.calcular_Critico(primero,mapa1.get_generador().aleatorio(),daño)
+        v2=daño
+        v3=v2-v1
         if segundo.get_hpActual() > 0:
             primero.recibir_Daño(daño)
+            if v3 != 0:
+                print("¡¡¡CRITICO!!!")
             print(f"el mago {segundo.get_nombre()} ataco y causo {daño} a mago {primero.get_nombre()}")
         print(f"{mago1.get_nombre()}: {mago1.get_hpActual()}/{mago1.get_hpMax()}           |      {mago2.get_nombre()}: {mago2.get_hpActual()}/{mago2.get_hpMax()}")
         print(f"{"▓"*mago1.get_hpActual()}{"░"* (mago1.get_hpMax()-mago1.get_hpActual())}   |   {"░"* (mago2.get_hpMax()-mago2.get_hpActual())}{"▓"*mago2.get_hpActual()}")
