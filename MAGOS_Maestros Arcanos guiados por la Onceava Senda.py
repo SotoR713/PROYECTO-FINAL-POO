@@ -1,3 +1,15 @@
+class Eventos:
+    def __init__(self,nombre,caracter):
+        self.nombre = nombre
+        self.caracter = caracter
+
+BRival = Eventos("Rival","⚔")
+BJefe = Eventos("Jefe","☠")
+Curacion = Eventos("Curacion","♥")
+Cofre = Eventos("Cofre","[]")
+ 
+
+
 class valoracionCaracter:
     def __init__ (self, letra,valor):
         self.letra = letra
@@ -107,16 +119,16 @@ class Mago:
         if self._hpActual < 0:
             self._hpActual = 0
 
-    def curar(self,curacion):
-        self._hpActual += curacion
+    def curar(self,cantidadCurar):
+        self._hpActual += cantidadCurar
         if self._hpActual > self._hpMax:
             self._hpActual = self._hpMax
-        print(f"recupera {curacion}: vida {self._hpActual}/{self._hpMax}\n")
+        print(f"recupera {cantidadCurar}: vida {self._hpActual}/{self._hpMax}\n")
 
     def calcular_Critico(self,rival):
         raise NotImplementedError("funcion critico no declarada")
     
-    def evacion(self,rival):
+    def evasion(self,rival):
         raise NotImplementedError("funcion critico no declarada")
 
 class Jugador(Mago):
@@ -124,7 +136,12 @@ class Jugador(Mago):
     def repartir_Stats(self):
         puntos = 4
         while puntos > 0:
-            eleccion = int(input(f"tienes {puntos} puntos a repartir \n selecciona a que le quieres asignar el siguiente punto\n1-HP\n2-Fuerza\n3-Armadura\n4-Velocidad:\n"))
+            esValor = False
+            while esValor == False:
+                eleccion = input(f"tienes {puntos} puntos a repartir \n selecciona a que le quieres asignar el siguiente punto\n1-HP\n2-Fuerza\n3-Armadura\n4-Velocidad:\n")
+                esValor = eleccion.isdigit()
+            eleccion = int(eleccion)
+
             if eleccion == 1:
                 self._hpMax += 1
                 puntos -= 1
@@ -165,13 +182,27 @@ class Jugador(Mago):
 
         return daño
     
-    def evacion(self, rival):
+    def evasion(self, rival,aleato):
+        difVel = self._velocidad - rival._velocidad
+        if difVel <= 0:
+            porcentajeEva = 0
+        else:
+            porcentajeEva = (difVel*100)//rival._velocidad
+        
+        if porcentajeEva > 20:
+            porcentajeEva= 20
+        elif porcentajeEva < 0:
+            porcentajeEva = 0     
 
-        pass
+        activacion = aleato
+        activacion = activacion % 100
 
-
-
-
+        if activacion <= porcentajeEva:
+            esquivar =0
+        else:
+            esquivar=1
+        return esquivar
+      
 class Rival(Mago):
 
     def repartir_Stats(self):
@@ -198,6 +229,19 @@ class Rival(Mago):
         if activacion <= porcentajeDaño:
             daño += (daño*50)//100
         return daño
+    
+    def evasion(self, rival,aleato):
+
+        porcentajeEva = 10   
+
+        activacion = aleato %100
+
+        if activacion <= porcentajeEva:
+            esquivar=0
+        else: 
+            esquivar=1
+        
+        return esquivar
 
 class Jefe(Mago):
 
@@ -226,6 +270,18 @@ class Jefe(Mago):
             daño += (daño*50)//100
         return daño
         
+    def evasion(self, rival,aleato):
+        
+        porcentajeEva = 10   
+
+        activacion = aleato %100
+
+        if activacion <= porcentajeEva:
+            esquivar=0
+        else: 
+            esquivar=1
+        return esquivar
+
 def nombrar_Jugador():
     nombre_Usuario = input("Ingrese el nombre del usuario ")
     idJugador = 0
@@ -239,7 +295,11 @@ def nombrar_Jugador():
     
     elemento_Jugador = "error"
     while elemento_Jugador == "error":
-        elemento_Jugador = int(input("selecciona un elemento de la lista: \n1-Agua\n2-Fuego\n3-Planta\n4-Tierra\n5-Neutral\n:"))
+        esValor = False
+        while esValor == False:
+            elemento_Jugador = input("selecciona un elemento de la lista: \n1-Agua\n2-Fuego\n3-Planta\n4-Tierra\n5-Neutral\n:")
+            esValor=elemento_Jugador.isdigit()
+        elemento_Jugador=int(elemento_Jugador)
         if elemento_Jugador == 1:
             elemento_Jugador = Agua
         elif elemento_Jugador == 2:
@@ -260,7 +320,7 @@ def nombrar_Jugador():
     
     return player1
 
-def enfrentamiento(mago1,mago2):
+def enfrentamiento(mago1,mago2,generador):
     turno = 1
 
     if mago1.get_velocidad() > mago2.get_velocidad():
@@ -274,23 +334,29 @@ def enfrentamiento(mago1,mago2):
         print(f"turno {turno}")
         daño = primero.calcular_Daño(segundo)
         v1=daño
-        daño = primero.calcular_Critico(segundo,mapa1.get_generador().aleatorio(),daño)
+        daño = (primero.calcular_Critico(segundo,generador.aleatorio(),daño))*(segundo.evasion(primero,generador.aleatorio()))
         v2 = daño
         v3 = v2-v1
         segundo.recibir_Daño(daño)
-        if v3 != 0:
-            print("¡¡¡CRITICO!!!")    
-        print(f"el mago {primero.get_nombre()} ataco y causo {daño} a mago {segundo.get_nombre()}")
+        if v3 > 0:
+            print("¡¡¡CRITICO!!!")
+        elif v3<0:
+            print(f"El Mago {primero.get_nombre()} ataco, pero {segundo.get_nombre()} esquivo el ataque")
+        else:
+            print(f"el mago {primero.get_nombre()} ataco y causo {daño} a mago {segundo.get_nombre()}")
         daño = segundo.calcular_Daño(primero)
         v1=daño
-        daño = segundo.calcular_Critico(primero,mapa1.get_generador().aleatorio(),daño)
+        daño = (segundo.calcular_Critico(primero,generador.aleatorio(),daño))*(primero.evasion(segundo,generador.aleatorio()))
         v2=daño
         v3=v2-v1
         if segundo.get_hpActual() > 0:
             primero.recibir_Daño(daño)
-            if v3 != 0:
+            if v3 > 0:
                 print("¡¡¡CRITICO!!!")
-            print(f"el mago {segundo.get_nombre()} ataco y causo {daño} a mago {primero.get_nombre()}")
+            elif v3<0:
+                print(f"El Mago {segundo.get_nombre()} ataco, pero {primero.get_nombre()} esquivo el ataque")            
+            else:
+                print(f"el mago {segundo.get_nombre()} ataco y causo {daño} a mago {primero.get_nombre()}")
         print(f"{mago1.get_nombre()}: {mago1.get_hpActual()}/{mago1.get_hpMax()}           |      {mago2.get_nombre()}: {mago2.get_hpActual()}/{mago2.get_hpMax()}")
         print(f"{"▓"*mago1.get_hpActual()}{"░"* (mago1.get_hpMax()-mago1.get_hpActual())}   |   {"░"* (mago2.get_hpMax()-mago2.get_hpActual())}{"▓"*mago2.get_hpActual()}")
         input()
@@ -378,8 +444,10 @@ class Mapa:
         self._generador = Generadores(raiz_digital(jugador.get_ID()))
         self._posicion = 0
         self._camino = []
-        self._siguiente0 = "Rival"
-        self._siguiente1 = "Rival"
+        self._historial =["█"]
+        self._siguiente0 = BRival
+        self._siguiente1 = BRival
+        self._caminoHistorico = "█"
 
     def get_jugador(self):
         return self._jugador
@@ -397,11 +465,21 @@ class Mapa:
 
     def avanzar(self):
         eleccion = ""
+        caminoHistorico=""
+        for i in self._historial:
+            caminoHistorico += i
+        print(f" {" " * len(caminoHistorico)}{self.get_siguiente0().caracter}")
+        print(caminoHistorico)
+        print(f" {" " * len(caminoHistorico)}{self.get_siguiente1().caracter}")
         while eleccion != "0" and eleccion !="1":
-            eleccion = input(f"seleccione a donde avanzar:\n0-{self.get_siguiente0()}\n1-{self.get_siguiente1()}\n")
+            eleccion = input(f"seleccione a donde avanzar:\n0-{self.get_siguiente0().nombre}\n1-{self.get_siguiente1().nombre}\n")
                     
         self._camino.append(eleccion)
         self._posicion += 1
+        
+               
+        
+
         if eleccion == "0":
             return self.get_siguiente0()
         elif eleccion == "1":
@@ -415,8 +493,8 @@ class Mapa:
 
     def generar_Siguientes(self):
         if self.validar_vs_Jefe() == True:
-            self._siguiente0 = "Jefe"
-            self._siguiente1 = "Jefe"
+            self._siguiente0 = BJefe
+            self._siguiente1 = BJefe
         else:
             self.generar_siguiente_no_Jefe()
         return self._siguiente0,self._siguiente1
@@ -425,45 +503,60 @@ class Mapa:
         v1 = (self.get_generador().aleatorio())
         v1=raiz_digital(v1)
         if v1 <= 6:
-            self._siguiente1= "Rival"
+            self._siguiente1= BRival
         elif v1 <= 8:
-            self._siguiente1= "Cofre"
+            self._siguiente1= Cofre
         else:
-            self._siguiente1= "Curacion"
+            self._siguiente1= Curacion
         v2 = (self.get_generador().aleatorio() )
         v2=raiz_digital(v2)
         if v2 <= 6:
-            self._siguiente0= "Rival"
+            self._siguiente0= BRival
         elif v2 <= 8:
-            self._siguiente0= "Cofre"
+            self._siguiente0= Cofre
         else:
-            self._siguiente0= "Curacion"
+            self._siguiente0= Curacion
         return self._siguiente0,self._siguiente1
 
 
     def resolver_Evento(self, evento):
-        if evento == "Rival":
-            rival = crear_Rival(self.get_generador().aleatorio(), len(self.get_camino()))
-            enfrentamiento(self.get_jugador(), rival)
-        elif evento == "Jefe":
-            jefe = crear_Jefe(self.get_generador().aleatorio(), len(self.get_camino()))
-            enfrentamiento(self.get_jugador(), jefe)
-        elif evento == "Curacion":
+        if evento == BRival:
+            Brival = crear_Rival(self.get_generador().aleatorio(), len(self.get_camino()))
+            enfrentamiento(self.get_jugador(), Brival,self.get_generador())
+            largo=len(self._historial)-1
+            if self._historial[largo] == "[":
+                self._historial[largo]="→[⚔]"
+            else:    
+                self._historial.append("→⚔")
+        elif evento == BJefe:
+            bjefe = crear_Jefe(self.get_generador().aleatorio(), len(self.get_camino()))
+            enfrentamiento(self.get_jugador(), bjefe,self.get_generador())
+            self._historial.append( "→☠")
+        elif evento == Curacion:
             self.get_jugador().curar(self.get_jugador().get_hpMax()*3//10)
-        elif evento == "Cofre":
+            self._historial.append("→♥")
+        elif evento == Cofre:
             v1 = (self.get_generador().aleatorio() * self.get_generador().aleatorio() )// 713
             v1 = raiz_digital(v1)
 
             if v1 <= 4:
                 self.get_jugador().subir_Nivel()
+                print("Subiste Nivel")
+                self._historial.append("→[↑]")
             elif v1 <= 7:
                 vidaCurar=self.get_jugador()._hpMax*3//10
                 self.get_jugador().curar(vidaCurar)
+                print(f"Recuperaste {vidaCurar} de vida")
+                self._historial.append("→[♥]")
             elif v1 <= 8:
-                self.resolver_Evento("Rival")
+                self._historial.append("[")
+                self.resolver_Evento(BRival)
+                print("BATALLA")
             else:
                 vidaDaño=self.get_jugador()._hpMax*1//10
                 self.get_jugador().recibir_Daño(vidaDaño)
+                print(f"Has perdido {vidaDaño}")
+                self._historial.append("→[↓]")
 
      
 
@@ -508,12 +601,9 @@ listaJefes =[
 
 player1 = nombrar_Jugador()
 mapa1 = Mapa(player1)
-contador=0
 while mapa1.get_jugador().get_hpActual() > 0:
     print(f"Posición: {mapa1.get_posicion()}")
     mapa1.resolver_Evento(mapa1.avanzar())
-
-    print(mapa1.generar_Siguientes())
-    contador += 1
-print(mapa1.get_camino())
+    mapa1.generar_Siguientes()
+print(mapa1._caminoHistorico)
 print(mapa1.get_posicion())
