@@ -286,12 +286,13 @@ class Jefe(Mago):
 
 def nombrar_Jugador():
     nombre_Usuario = input("Ingrese el nombre del usuario ")
-    idJugador = 0
+    idJugador = "0"
     
     for i in nombre_Usuario:
         for j in listaCaracteres:
             if i.lower() == j.letra:
-                idJugador += j.valor
+                idJugador += str(j.valor)
+    idJugador=int(idJugador)            
     if idJugador < 1:
         idJugador = 713
     
@@ -319,11 +320,17 @@ def nombrar_Jugador():
     player1 = Jugador(idJugador,nombre_Usuario,elemento_Jugador,20,20,8,8,8,0)
 
     player1.mostrar_Stats()
-    
+    print(f"Semilla: {idJugador}")
     return player1
 
 def enfrentamiento(mago1,mago2,generador):
     turno = 1
+    print("=============== ⚔  COMBATE  ⚔ ===============")
+    mago1.mostrar_Stats()
+    print("--------------------- VS ---------------------")
+    mago2.mostrar_Stats()
+    print("----------------------------------------------")
+    input("Presione ENTER para iniciar")
 
     if mago1.get_velocidad() > mago2.get_velocidad():
         primero = mago1
@@ -390,6 +397,19 @@ def crear_Rival(numeroDado,valorPosicion_Actual):
     v1 = numeroDado * valorPosicion_Actual
     v1 = v1 %20
 
+    nivelar = v1 % 10
+    if nivelar > 7:
+        valorNivel=valorPosicion_Actual-1
+    elif nivelar > 4:
+        valorNivel=valorPosicion_Actual-2
+    else:
+        valorNivel=valorPosicion_Actual
+
+    valorPosicion_Actual=valorNivel
+
+    if valorNivel<0:
+        valorPosicion_Actual = 0
+
     asignacionElemento = (numeroDado % 10) // 2
     if asignacionElemento == 0:
         v2 = Agua
@@ -401,7 +421,6 @@ def crear_Rival(numeroDado,valorPosicion_Actual):
         v2 = Tierra
     else:
         v2 = Neutral
-
 
     valores_Rival = listaRivales[v1]
     rival_Actual = Rival(valores_Rival.get_ID(),valores_Rival.get_nombre(),v2,valores_Rival.get_hpActual(),valores_Rival.get_hpMax(),valores_Rival.get_fuerza(),valores_Rival.get_armadura(),valores_Rival.get_velocidad(),valorPosicion_Actual)
@@ -443,7 +462,7 @@ def raiz_digital(numero):
 class Mapa:
     def __init__ (self,jugador):
         self._jugador = jugador
-        self._generador = Generadores(raiz_digital(jugador.get_ID()))
+        self._generador = Generadores((jugador.get_ID()))
         self._posicion = 0
         self._camino = []
         self._historial =["█"]
@@ -596,13 +615,57 @@ listaJefes =[
     Jefe("9","CarluxSanguis",Neutral,26,26,6,2,1,0),
 ]
 
+def titulo_Inicio():
+
+    print("███╗   ███╗ █████╗  ██████╗  ██████╗ ███████╗")
+    print("████╗ ████║██╔══██╗██╔════╝ ██╔═══██╗██╔════╝")
+    print("██╔████╔██║███████║██║  ███╗██║   ██║███████╗")
+    print("██║╚██╔╝██║██╔══██║██║   ██║██║   ██║╚════██║")
+    print("██║ ╚═╝ ██║██║  ██║╚██████╔╝╚██████╔╝███████║")
+    print("╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝")
+    print("Maestros Arcanos Guiados por la Onceava Senda")
+    print("")
+    print("        --Tu nombre define tu senda-")
+    print("     -La senda recuerda tus decisiones-")
+    print("")
+
+    
+
+def titulo_Final():
+    print(            " ██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ")
+    print(            "██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗")
+    print(            "██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝")
+    print(            "██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗")
+    print(            "╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║")
+    print(            " ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝")
 
 
-player1 = nombrar_Jugador()
-mapa1 = Mapa(player1)
-while mapa1.get_jugador().get_hpActual() >0:
-    print(f"Posición: {mapa1.get_posicion()}")
-    mapa1.resolver_Evento(mapa1.avanzar())
-    mapa1.generar_Siguientes()
-print(mapa1._caminoHistorico)
-print(mapa1.get_posicion())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bucle_Juego=0
+while bucle_Juego ==0:
+    titulo_Inicio()     
+    player1 = nombrar_Jugador()
+    mapa1 = Mapa(player1)
+    while mapa1.get_jugador().get_hpActual() >0:
+        print(f"Posición: {mapa1.get_posicion()}")
+        mapa1.resolver_Evento(mapa1.avanzar())
+        mapa1.generar_Siguientes()
+    print("senda: ",mapa1._caminoHistorico)
+    print("Has llegado hasta la posicion:",mapa1.get_posicion())
+    print("")
+    titulo_Final()
+    input("presion ENTER para reiniciar")
