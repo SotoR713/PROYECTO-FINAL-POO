@@ -536,7 +536,6 @@ class Mapa:
             self._siguiente0= Curacion
         return self._siguiente0,self._siguiente1
 
-
     def resolver_Evento(self, evento):
         if evento == BRival:
             Brival = crear_Rival(self.get_generador().aleatorio(), len(self.get_camino()))
@@ -668,4 +667,5 @@ while bucle_Juego ==0:
     print("Has llegado hasta la posicion:",mapa1.get_posicion())
     print("")
     titulo_Final()
+    print("")
     input("presion ENTER para reiniciar")
